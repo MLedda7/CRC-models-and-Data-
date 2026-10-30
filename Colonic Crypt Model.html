@@ -1,0 +1,1441 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Colonic Crypt Model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,500;1,400&display=swap">
+<style>
+/* Layout: the crypt specimen stands as a tall slide on the left; the bench (controls, readouts, figures) sits to its right and stacks below it on phones. */
+:root{
+  --bg:#edf0ef; --panel:#f8faf9; --raise:#ffffff; --ink:#17211e; --muted:#5b6a65; --line:#d2dad7;
+  --accent:#4b3d9f; --accent-ink:#ffffff;
+  --stroma:#efe6ec; --stroma-edge:#ddcfd9;
+  --c-ta:#2a63c4; --c-diff:#37894a; --c-pre:#c38d0c; --c-ade:#dd5c1c; --c-tum:#8740c2; --c-imm:#d43a80;
+  --g-wt:#8a9893; --g-het:#1f8a84; --g-mut:#b23058;
+  --f-disp:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1211; --panel:#121a18; --raise:#18211f; --ink:#e1e9e6; --muted:#8d9d97; --line:#25312e;
+    --accent:#a89cf3; --accent-ink:#141026;
+    --stroma:#1d1720; --stroma-edge:#2c2330;
+    --c-ta:#5a90ee; --c-diff:#55b566; --c-pre:#e3b43b; --c-ade:#f27f40; --c-tum:#b67ce9; --c-imm:#f069a3;
+    --g-wt:#6f7f79; --g-het:#3fbab2; --g-mut:#e2577f;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1211; --panel:#121a18; --raise:#18211f; --ink:#e1e9e6; --muted:#8d9d97; --line:#25312e;
+  --accent:#a89cf3; --accent-ink:#141026;
+  --stroma:#1d1720; --stroma-edge:#2c2330;
+  --c-ta:#5a90ee; --c-diff:#55b566; --c-pre:#e3b43b; --c-ade:#f27f40; --c-tum:#b67ce9; --c-imm:#f069a3;
+  --g-wt:#6f7f79; --g-het:#3fbab2; --g-mut:#e2577f;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:14px/1.5 var(--f-ui);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:22px 48px;
+}
+.wrap{max-width:1240px; margin:0 auto; display:grid; gap:20px}
+header{display:grid; gap:6px}
+h1{font:500 30px/1.12 var(--f-disp); margin:0; letter-spacing:-.01em; text-wrap:balance}
+.sub{margin:0; color:var(--muted); max-width:72ch}
+.sub i{font-family:var(--f-disp)}
+.layout{display:grid; grid-template-columns:276px minmax(0,1fr); gap:20px; align-items:start}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px}
+.eyebrow{font:500 11px/1.2 var(--f-ui); letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.mono{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+
+/* specimen */
+.specimen{position:sticky; top:max(14px, env(safe-area-inset-top, 0px)); display:grid; gap:10px; justify-items:center}
+.spec-head{width:100%; display:flex; justify-content:space-between; align-items:baseline; gap:8px}
+.spec-cap{width:100%; display:flex; justify-content:space-between; font-size:11px; color:var(--muted)}
+#crypt{display:block; touch-action:manipulation; cursor:crosshair; max-width:100%}
+.cell-legend{display:flex; flex-wrap:wrap; gap:4px 10px; justify-content:center; font-size:12px; color:var(--muted)}
+.sw{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px}
+.inspect{width:100%; font-size:12.5px; min-height:118px}
+.focus{display:grid; gap:14px}
+.focus-head{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between}
+.focus-body{display:grid; grid-template-columns:minmax(0,380px) minmax(0,1fr); gap:20px; align-items:start}
+.zoom-col{display:grid; gap:8px; min-width:0}
+.inspect-col{display:grid; gap:14px; min-width:0}
+#zoom{display:block; width:100%; max-width:100%; aspect-ratio:1; border-radius:6px; border:1px solid var(--stroma-edge); cursor:crosshair; touch-action:manipulation}
+.badge-key{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:11.5px; color:var(--muted)}
+.zoom-foot{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center}
+.data-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px 28px}
+.data-sec{display:grid; gap:12px; align-content:start; min-width:0}
+.data-sec h3{margin:0; font:600 14px var(--f-ui)}
+.data .hint{max-width:62ch}
+.bgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px}
+.bgrid label{font-size:12px; color:var(--muted); display:grid; gap:4px}
+.check{display:flex; gap:8px; align-items:center; font-size:12.5px; color:var(--muted)}
+.check input{accent-color:var(--accent)}
+.check:has(input:disabled){opacity:.5}
+.bar{height:6px; border-radius:3px; background:var(--line); overflow:hidden}
+.bar span{display:block; height:100%; width:0; background:var(--accent); transition:width .3s}
+@media (prefers-reduced-motion: reduce){ .bar span{transition:none} }
+.inspect h3{margin:0 0 4px; font:600 13px var(--f-ui)}
+.inspect .kv{display:grid; grid-template-columns:auto 1fr; gap:2px 10px; font-family:var(--f-mono); font-size:12px}
+.inspect .kv dt{color:var(--muted)}
+.inspect .kv dd{margin:0}
+.inspect p{margin:0; color:var(--muted)}
+
+/* bench */
+.bench{display:grid; gap:16px; min-width:0}
+.controls{display:grid; gap:16px}
+.runrow{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between}
+.btns{display:flex; flex-wrap:wrap; gap:8px}
+button{font:inherit; color:inherit}
+.btn{font:500 13px var(--f-ui); padding:8px 14px; border-radius:7px; border:1px solid var(--line); background:var(--raise); color:var(--ink); cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); min-width:84px}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.field{display:grid; gap:7px; min-width:0}
+.field > label, .field > .lab{font-size:12.5px; color:var(--muted); display:flex; justify-content:space-between; gap:8px}
+.field output{font-family:var(--f-mono); color:var(--ink)}
+.seg{display:flex; flex-wrap:wrap; gap:4px}
+.seg button{font:500 12px var(--f-mono); padding:6px 9px; border:1px solid var(--line); background:transparent; color:var(--ink); border-radius:6px; cursor:pointer; font-variant-numeric:tabular-nums}
+.seg button:hover{border-color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.seg sup{font-size:.72em}
+.sliders{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px 20px; align-items:end}
+input[type=range]{width:100%; accent-color:var(--accent)}
+input[type=number]{font:13px var(--f-mono); width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:6px; background:var(--raise); color:var(--ink)}
+.toggle{font:500 12px var(--f-mono); padding:7px 12px; border-radius:6px; border:1px solid var(--line); background:transparent; cursor:pointer; text-align:left}
+.toggle[aria-pressed="true"]{background:var(--c-imm); border-color:var(--c-imm); color:var(--raise)}
+details > summary{cursor:pointer; font-size:12.5px; color:var(--muted); list-style:none}
+details > summary::before{content:"+ "; font-family:var(--f-mono)}
+details[open] > summary::before{content:"− "}
+.adv{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:12px}
+.adv label{font-size:12px; color:var(--muted); display:grid; gap:4px}
+.hint{font-size:12px; color:var(--muted); margin:0}
+
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+.stat{background:var(--panel); padding:10px 12px; display:grid; gap:2px; min-width:0}
+.stat span{font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.stat b{font:500 19px/1.2 var(--f-mono); font-variant-numeric:tabular-nums}
+.status{font-size:12.5px; color:var(--muted); margin:0}
+.status strong{color:var(--ink); font-weight:600}
+.status.stopped strong{color:var(--g-mut)}
+
+.charts{display:grid; gap:12px}
+.chart-head{display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center}
+.tabs{display:flex; flex-wrap:wrap; gap:2px; border-bottom:1px solid var(--line)}
+.tabs button{font:500 13px var(--f-ui); padding:7px 12px; border:0; background:transparent; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--accent)}
+.panel{display:grid; gap:10px}
+.panel canvas{display:block; width:100%}
+.legend{display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12px; color:var(--muted)}
+.cap{font-size:12px; color:var(--muted); margin:0}
+.grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.grid3 h4, .grid2 h4{margin:0 0 4px; font:600 12px var(--f-ui)}
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px}
+.copied{font-size:12px; color:var(--muted)}
+#csvBox{width:100%; height:90px; font:11px var(--f-mono); background:var(--raise); color:var(--ink); border:1px solid var(--line); border-radius:6px}
+
+.notes summary{font:600 14px var(--f-ui); color:var(--ink)}
+.notes summary::before{color:var(--muted)}
+.notes p{max-width:72ch; color:var(--muted); margin:10px 0}
+.tablewrap{overflow-x:auto; margin-top:10px}
+table{border-collapse:collapse; width:100%; min-width:680px; font-size:12.5px}
+th,td{text-align:left; vertical-align:top; padding:8px 10px; border-top:1px solid var(--line)}
+th{font-weight:600; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+td:first-child{font-weight:600; white-space:nowrap}
+td code{font-family:var(--f-mono); font-size:11.5px}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .specimen{position:static; max-width:420px; margin:0 auto; width:100%}
+}
+@media (max-width:620px){
+  .grid3,.grid2,.focus-body{grid-template-columns:1fr}
+  h1{font-size:25px}
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Colonic Crypt Model</h1>
+  </header>
+
+  <main class="layout">
+    <section class="card specimen" aria-label="Crypt view">
+      <div class="spec-head">
+        <span class="eyebrow">Crypt, unfolded cylinder</span>
+        <span class="mono" id="clock" style="font-size:12px">0 h</span>
+      </div>
+      <div class="spec-cap"><span>Lumen (crypt mouth)</span><span>β-catenin</span></div>
+      <canvas id="crypt" aria-label="Simulated crypt; click a cell to inspect it"></canvas>
+      <div class="spec-cap"><span>Crypt base, stem niche</span><span></span></div>
+      <div class="cell-legend" id="cellLegend"></div>
+      <p class="hint" style="text-align:center">Click any cell to zoom in on it. The outlined box marks the zoomed region.</p>
+    </section>
+
+    <section class="bench">
+      <div class="card controls">
+        <div class="runrow">
+          <div class="btns">
+            <button class="btn primary" id="runBtn" type="button">Run</button>
+            <button class="btn" id="stepBtn" type="button">Step 1 h</button>
+            <button class="btn" id="resetBtn" type="button">Reset</button>
+          </div>
+          <div class="field" style="min-width:200px">
+            <span class="lab">Hours per frame</span>
+            <div class="seg" id="speedSeg" role="group" aria-label="Hours per frame">
+              <button type="button" data-v="1">1</button>
+              <button type="button" data-v="6" aria-pressed="true">6</button>
+              <button type="button" data-v="24">24</button>
+              <button type="button" data-v="max">max</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="lab"><span>Mutation probability per allele per division</span><span>restarts the run</span></span>
+          <div class="seg" id="mutSeg" role="group" aria-label="Mutation probability"></div>
+        </div>
+
+        <div class="field">
+          <span class="lab"><span>Mitosis time</span><span>restarts the run</span></span>
+          <div class="seg" id="mitSeg" role="group" aria-label="Mitosis time condition">
+            <button type="button" data-m="differential" aria-pressed="true">Differential · 24 / 12 KRAS / 10 tumoral h</button>
+            <button type="button" data-m="uniform" aria-pressed="false">Uniform · 24 h for every cell</button>
+          </div>
+        </div>
+
+        <div class="sliders">
+          <div class="field">
+            <label for="stem"><span>Heterozygous output of the stem niche</span><output id="stemOut" for="stem">0.50</output></label>
+            <input type="range" id="stem" min="0" max="1" step="0.05" value="0.5">
+          </div>
+          <div class="field">
+            <label for="immPerHot"><span>Immune cells per hotspot per hour</span><output id="immOut" for="immPerHot">1</output></label>
+            <input type="range" id="immPerHot" min="0" max="10" step="1" value="1">
+          </div>
+          <div class="field">
+            <label for="hypThr"><span>Hypoxia threshold, neoplastic cells per patch</span><output id="hypOut" for="hypThr">5</output></label>
+            <input type="range" id="hypThr" min="1" max="31" step="1" value="5">
+          </div>
+        </div>
+        <p class="hint">Set immune cells to 0 and slide the hypoxia threshold to the far right (off) for the minimal genetic model of §4.</p>
+
+        <details id="adv">
+          <summary>Immune cells, thresholds and seed (paper defaults)</summary>
+          <div class="adv">
+            <label for="nkSpeed">NK speed, patches per hour<input type="number" id="nkSpeed" min="0" max="200" value="39"></label>
+            <label for="immKills">Kills per immune cell<input type="number" id="immKills" min="1" max="50" value="5"></label>
+            <label for="immLife">Immune cell lifetime (h)<input type="number" id="immLife" min="1" max="200" value="10"></label>
+            <label for="immThr">Immune threshold (cells per patch)<input type="number" id="immThr" min="1" max="50" value="5"></label>
+            <label for="regThr">TP53 apoptosis threshold (regulatory hits, of 12)<input type="number" id="regThr" min="1" max="12" value="5"></label>
+            <label for="seed">Seed<input type="number" id="seed" min="1" step="1" value="1"></label>
+          </div>
+          <p class="hint" style="margin-top:10px">NK speed is your calibration of 6–7 µm/min. Each hour an immune cell draws its path length from that range (36–42 patches at the default) and walks it one patch at a time, scanning 2 patches around itself at every step.</p>
+        </details>
+      </div>
+
+      <div>
+        <div class="stats" id="stats"></div>
+        <p class="status" id="status" style="margin-top:8px"></p>
+      </div>
+
+      <div class="card focus" aria-label="Zoomed view of the selected cell">
+        <div class="focus-head">
+          <span class="eyebrow">Zoom on the selected cell</span>
+          <div class="seg" id="zoomSeg" role="group" aria-label="Zoom region width">
+            <button type="button" data-w="10">5 cells wide</button>
+            <button type="button" data-w="20" aria-pressed="true">10 cells</button>
+            <button type="button" data-w="40">20 cells</button>
+          </div>
+        </div>
+        <div class="focus-body">
+          <div class="zoom-col">
+            <canvas id="zoom" aria-label="Zoomed region of the crypt around the selected cell; click to select another cell"></canvas>
+            <div class="badge-key" id="badgeKey"></div>
+          </div>
+          <div class="inspect-col">
+            <div class="inspect" id="inspect" aria-live="polite"><p>Click a cell in the crypt or in the zoom window.</p></div>
+            <div class="zoom-foot">
+              <button class="btn" id="saveBtn" type="button" hidden>Save frame as PNG</button>
+              <span class="copied" id="saveMsg"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card charts">
+        <div class="chart-head">
+          <div class="tabs" role="tablist" id="tabs">
+            <button role="tab" type="button" data-t="pop" aria-selected="true">Population</button>
+            <button role="tab" type="button" data-t="death" aria-selected="false">Deaths</button>
+            <button role="tab" type="button" data-t="geno" aria-selected="false">Genotypes</button>
+            <button role="tab" type="button" data-t="prol" aria-selected="false">Proliferation</button>
+          </div>
+          <div class="btns"><button class="btn" id="csvBtn" type="button">Copy CSV</button><span class="copied" id="copied"></span></div>
+        </div>
+        <textarea id="csvBox" hidden readonly aria-label="CSV data"></textarea>
+
+        <div class="panel" data-p="pop">
+          <canvas id="cvPop" style="height:250px"></canvas>
+          <div class="legend" id="lgPop"></div>
+          <p class="cap">Cells per typology over time, excluding the first line (as in Fig. 4). Neoplastic expansions push the differentiated band down and the transit-amplifying band up.</p>
+        </div>
+        <div class="panel" data-p="death" hidden>
+          <canvas id="cvDeath" style="height:250px"></canvas>
+          <div class="legend" id="lgDeath"></div>
+          <p class="cap">Cumulative deaths divided by elapsed hours, by cause (as in Fig. 5). Physiological deaths include cells removed by a dividing neighbour.</p>
+        </div>
+        <div class="panel" data-p="geno" hidden>
+          <div class="grid3">
+            <div><h4>APC</h4><canvas id="cvA" style="height:150px"></canvas></div>
+            <div><h4>KRAS</h4><canvas id="cvK" style="height:150px"></canvas></div>
+            <div><h4>TP53</h4><canvas id="cvP" style="height:150px"></canvas></div>
+          </div>
+          <div class="legend" id="lgGeno"></div>
+          <p class="cap">Genotype frequency over all cells (as in Fig. 6). Heterozygotes [1 0] and [0 1] are pooled.</p>
+        </div>
+        <div class="panel" data-p="prol" hidden>
+          <div class="grid2">
+            <div><h4>Mitoses per living cell</h4><canvas id="cvOff" style="height:170px"></canvas></div>
+            <div><h4>Mitoses by crypt height (cumulative)</h4><canvas id="cvHeight" style="height:170px"></canvas></div>
+          </div>
+          <div class="legend" id="lgOff"></div>
+          <div><h4 style="margin:6px 0 4px;font:600 12px var(--f-ui)" id="patchTitle">Neoplastic cells per patch at peak expansion</h4><canvas id="cvPatch" style="height:150px"></canvas></div>
+          <p class="cap">Counterparts of Figs. 7, 10 and 9. Crypt height is in patches (0–300, one layer is 3 patches). The per-patch histogram uses a log scale.</p>
+        </div>
+      </div>
+
+      <div class="card data" aria-label="Data export and replicate runs">
+        <div class="data-grid">
+          <section class="data-sec">
+            <h3>This run</h3>
+            <p class="hint">Every founder, birth, parent mutation at division and death is logged with the cell's ID, parent, clone, generation, genotype and cause. The snapshot lists every living cell now.</p>
+            <div class="btns">
+              <button class="btn" id="saveEvents" type="button" data-needs-save hidden>Save event log</button>
+              <button class="btn" id="saveSnap" type="button" data-needs-save hidden>Save cell snapshot</button>
+              <button class="btn" id="saveSeries" type="button" data-needs-save hidden>Save time series</button>
+            </div>
+            <p class="hint mono" id="evCount"></p>
+            <p class="copied" id="exportMsg"></p>
+          </section>
+          <section class="data-sec">
+            <h3>Replicate runs</h3>
+            <p class="hint">Uses the current settings above. Each run lasts until a stop condition or the maximum length. Results are saved as one zip. When the batch ends, the interactive run restarts from hour 0.</p>
+            <div class="field">
+              <span class="lab">Scenarios</span>
+              <div class="seg" id="scenSeg" role="group" aria-label="Scenarios">
+                <button type="button" data-s="current" aria-pressed="true">Current settings</button>
+                <button type="button" data-s="allmu" aria-pressed="false">All 8 mutation probabilities</button>
+                <button type="button" data-s="allboth" aria-pressed="false">All 8 × both mitosis conditions</button>
+              </div>
+            </div>
+            <div class="bgrid">
+              <label for="bSeeds">Seeds per scenario<input type="number" id="bSeeds" min="1" max="100" value="10"></label>
+              <label for="bFirst">First seed<input type="number" id="bFirst" min="1" value="1"></label>
+              <label for="bBurn">Burn-in excluded (h)<input type="number" id="bBurn" min="0" max="2000" value="120"></label>
+              <label for="bStep">Record every (h)<input type="number" id="bStep" min="1" max="720" value="24"></label>
+              <label for="bMax">Maximum length (h)<input type="number" id="bMax" min="24" max="8760" value="8760"></label>
+            </div>
+            <label class="check" for="bEvents"><input type="checkbox" id="bEvents"> Include the per-cell event log of each run (up to 20 runs)</label>
+            <div class="btns">
+              <button class="btn primary" id="batchBtn" type="button">Start replicate runs</button>
+              <button class="btn" id="batchSave" type="button" hidden>Save results (zip)</button>
+            </div>
+            <div class="bar" id="batchBar" hidden><span id="batchFill"></span></div>
+            <p class="hint mono" id="batchInfo"></p>
+          </section>
+        </div>
+        <p class="hint" id="noSave">Saving files works when this page is open in claude.ai; it is not available in this view.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(() => {
+"use strict";
+/* ---------- world constants (paper §2.2.1) ---------- */
+const W = 50, H = 300;                 // patches: 25 cells × 2 wide, 100 layers × 3 tall
+const EXIT_Y = 295;                    // cells above this line leave through the crypt mouth
+const MAXH = 8760;                     // one year of hourly ticks
+const TA_ZONE = 36 * 299 / 100;        // initial transit-amplifying zone (growth-cell-radius 36)
+const EXPS = [9, 8, 7, 6, 5, 4, 3, 2];
+const N8 = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
+const EMPTY = [];
+
+const P = { mutExp:5, mitosis:"differential", stemP:.5, immPerHot:1, nkSpeed:39, immKills:5, immLife:10, immThr:5, hypThr:5, regThr:5, seed:1 };
+
+/* ---------- per-cell event log (flat Int32Array, 14 fields per event) ---------- */
+const EVF = 14;
+const EV_KIND = { 0:"founder_initial", 1:"founder_stem", 2:"birth", 3:"parent_mutated", 10:"death_lifespan", 11:"death_removed",
+  12:"exit_mouth", 13:"death_hypoxia", 14:"death_immune", 15:"death_tp53" };
+const TYPE_NAME = ["transit_amplifying", "differentiated", "pre_adenoma", "adenoma", "tumoral"];
+let EV = new Int32Array(EVF * 65536), evN = 0, logOn = true;
+const typeCode = c => !c.pre ? (c.ta ? 0 : 1) : c.tum ? 4 : c.ade ? 3 : 2;
+function logEv(kind, c){
+  if (!logOn) return;
+  if ((evN + 1) * EVF > EV.length){ const n = new Int32Array(EV.length * 2); n.set(EV); EV = n; }
+  const o = evN++ * EVF;
+  EV[o] = hour; EV[o + 1] = kind; EV[o + 2] = c.id; EV[o + 3] = c.parent; EV[o + 4] = c.clone; EV[o + 5] = c.gen;
+  EV[o + 6] = typeCode(c); EV[o + 7] = c.apc; EV[o + 8] = c.kras; EV[o + 9] = c.p53; EV[o + 10] = c.sg;
+  EV[o + 11] = (c.y / 3) | 0; EV[o + 12] = c.off; EV[o + 13] = c.life;
+}
+const al2 = b => "" + (b & 1) + ((b >> 1) & 1);           // allele pair as "10", "01", "11", "00"
+function eventsCSV(prefix){
+  const rows = [(prefix ? prefix.head + "," : "") + "hour,event,id,parent,clone,generation,type,apc,kras,tp53,regulatory_hits,layer,mitoses,age_h"];
+  for (let i = 0; i < evN; i++){
+    const o = i * EVF;
+    rows.push((prefix ? prefix.vals + "," : "") + [EV[o], EV_KIND[EV[o + 1]], EV[o + 2], EV[o + 3], EV[o + 4], EV[o + 5], TYPE_NAME[EV[o + 6]],
+      al2(EV[o + 7]), al2(EV[o + 8]), al2(EV[o + 9]), EV[o + 10], EV[o + 11], EV[o + 12], EV[o + 13]].join(","));
+  }
+  return rows.join("\n");
+}
+const TURN = 25 * Math.PI / 180;       // SD of the NK heading change per 1-patch step (persistent random walk)
+const REG_LINK = ["APC", "APC", "KRAS", "KRAS", "TP53", "TP53"];
+
+/* ---------- RNG ---------- */
+let rng;
+function mulberry32(a){ return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const R = () => rng();
+const ri = n => (R() * n) | 0;
+const unif = (a, b) => a + R() * (b - a);
+function rnorm(m, s){ let u = R(); while (u === 0) u = R(); return m + s * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * R()); }
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = ri(i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+const pc = b => (b & 1) + ((b >> 1) & 1);   // alleles stored as 2-bit masks
+const wrap = x => ((x % W) + W) % W;
+const ODD_X = Array.from({length:25}, (_, k) => 1 + 2 * k);
+
+/* ---------- state ---------- */
+let grid, cells, immune, hyp, hour, nextId, D, S, mitY, peakNeo, peakHour, peakHist, stopped, stopReason, last;
+
+function at(x, y){ return grid[x + y * W] || EMPTY; }
+function gadd(c){ const k = c.x + c.y * W; (grid[k] || (grid[k] = [])).push(c); }
+function grem(c){ const a = grid[c.x + c.y * W]; if (!a) return; const i = a.indexOf(c); if (i >= 0){ a[i] = a[a.length - 1]; a.pop(); } }
+function moveTo(c, x, y){ grem(c); c.x = x; c.y = y; gadd(c); }
+function kill(c, kind){ if (!c.alive) return false; c.alive = false; grem(c); if (kind != null) logEv(kind, c); return true; }
+const immortal = c => c.tum || c.p53 === 3;
+
+const physLife = () => unif(96, 120);
+const tumLife = () => unif(96, 150);
+function sampleMit(c){
+  const lo = c.mitMean >= 24 ? 16 : 5; let t, k = 0;
+  do { t = Math.round(rnorm(c.mitMean, 1)); } while ((t < lo || t > c.maxLife) && ++k < 50);
+  c.mitT = Math.max(lo, t);
+}
+function makeCell(x, y, ta){
+  const e = P.mutExp;
+  const c = { id:nextId++, x, y, alive:true, ta, life:0, maxLife:physLife(), mitMean:24, mitT:24,
+    apc:0, kras:0, p53:0, reg:[0, 0, 0, 0, 0, 0], sg:0, eA:e, eK:e, eP:e,
+    pre:false, ade:false, tum:false, block:false, mit:false, off:0, mv:-1, jx:0, jy:0,
+    parent:0, gen:0, born:hour };
+  c.clone = c.id;                       // every founder (initial or stem-derived) starts its own clone
+  sampleMit(c); return c;
+}
+function hatch(p, x, y){
+  const d = Object.assign({}, p);       // clone id is inherited unchanged
+  d.id = nextId++; d.x = x; d.y = y; d.life = 0; d.off = 0; d.mit = false; d.mv = hour; d.reg = p.reg.slice();
+  d.parent = p.id; d.gen = p.gen + 1; d.born = hour;
+  d.maxLife = p.tum ? tumLife() : physLife();
+  d.jx = R() - .5; d.jy = R() - .5;
+  gadd(d); cells.push(d);
+  p.off++; p.mit = false; p.gen++; mitY[p.y]++; D.div++;
+  return d;
+}
+// Division: replication errors land on one newly synthesised strand, and sister chromatids
+// segregate to different daughters, so each of the two products mutates independently AFTER the split.
+function divide(p, x, y){
+  const k0 = p.apc + 4 * p.kras + 16 * p.p53 + 64 * p.sg;
+  const d = hatch(p, x, y);
+  mutate(p); mutate(d);
+  logEv(2, d);
+  if (p.apc + 4 * p.kras + 16 * p.p53 + 64 * p.sg !== k0) logEv(3, p);   // the cell keeping the parent's id gained a mutation
+  return d;
+}
+
+/* ---------- genetics (paper §2.2.3) ---------- */
+function hit2(b, e, loh){
+  if (b === 0 && R() < Math.pow(10, -e)) b = R() < .5 ? 1 : 2;                 // first allele
+  if (pc(b) === 1 && R() < Math.pow(10, -(loh ? e - 1 : e))) b = 3;            // second allele, 10× for tumour suppressors
+  return b;
+}
+function mutate(c){
+  if (c.p53 === 3){                                                           // TP53 loss: genomic instability, per mitosis
+    if (c.eA > 1) c.eA -= .5; if (c.eK > 0) c.eK -= .5; if (c.eP > 1) c.eP -= .5;
+  }
+  c.apc = hit2(c.apc, c.eA, true);
+  c.kras = hit2(c.kras, c.eK, false);
+  c.p53 = hit2(c.p53, c.eP, true);
+  // six regulatory genes, two linked to each driver: same probability and hit rule as their driver
+  const r = c.reg;
+  r[0] = hit2(r[0], c.eA, true);  r[1] = hit2(r[1], c.eA, true);
+  r[2] = hit2(r[2], c.eK, false); r[3] = hit2(r[3], c.eK, false);
+  r[4] = hit2(r[4], c.eP, true);  r[5] = hit2(r[5], c.eP, true);
+  let s = 0; for (const b of r) s += pc(b); c.sg = s;
+}
+function phenotype(c){
+  if (c.apc === 3 && !c.pre){ c.pre = true; c.block = true; c.jx = R() - .5; c.jy = R() - .5; }
+  const diff = P.mitosis === "differential";                 // uniform: every typology keeps the 24 h cycle
+  if (diff && c.kras && c.mitMean > 12){ c.mitMean = 12; sampleMit(c); }
+  if (c.pre && c.kras && !c.ade) c.ade = true;
+  if (c.ade && c.p53 === 3 && !c.tum){
+    c.tum = true; c.maxLife = Math.max(c.maxLife, tumLife());
+    if (diff){ c.mitMean = 10; sampleMit(c); }
+  }
+}
+
+/* ---------- setup ---------- */
+function alloc(){ return new Float32Array(MAXH + 1); }
+function setup(){
+  rng = mulberry32(P.seed);
+  grid = new Array(W * H); cells = []; immune = []; hyp = new Uint16Array(W * H);
+  hour = 0; nextId = 1; stopped = false; stopReason = "";
+  D = { life:0, nb:0, exit:0, hyp:0, imm:0, tum:0, p53:0, div:0 };
+  evN = 0;
+  S = { ta:alloc(), df:alloc(), pr:alloc(), ad:alloc(), tu:alloc(), im:alloc(),
+        dPhys:alloc(), dHyp:alloc(), dImm:alloc(), dTum:alloc(), dP53:alloc(), g:Array.from({length:9}, alloc) };
+  mitY = new Float64Array(H); peakNeo = 0; peakHour = 0; peakHist = null;
+  for (let r = 0; r < 100; r++){
+    const y = 1 + 3 * r;
+    for (const x of ODD_X){
+      const c = makeCell(x, y, y <= TA_ZONE);
+      c.life = Math.max(0, Math.round(y / 3) + (R() < .5 ? ri(10) : -ri(10)));
+      gadd(c); cells.push(c); logEv(0, c);
+    }
+  }
+  record();
+}
+
+/* ---------- procedures (NetLogo START, in order) ---------- */
+function forward(L){
+  const list = [];
+  for (const x of ODD_X) for (const c of at(x, L)) if (!c.pre) list.push(c);
+  shuffle(list);
+  const ny = L + 3, bcat = 1 - ny / 300;
+  for (const c of list){
+    if (!c.alive || c.pre || at(c.x, ny).length) continue;
+    moveTo(c, c.x, ny);
+    if (c.ta && !c.block && bcat < R() * .8) c.ta = false;                    // differentiation along the β-catenin gradient
+    if (c.ta && c.life % c.mitT === 0) c.mit = true;
+    if (!c.ta) c.mit = false;
+  }
+}
+function mitosisMain(y){
+  const list = [];
+  for (const x of ODD_X) for (const c of at(x, y)) if (c.mit && c.ta && !c.pre) list.push(c);
+  shuffle(list);
+  for (const c of list){
+    if (!c.alive || !c.mit) continue;
+    const xr = wrap(c.x + 2), xl = wrap(c.x - 2);
+    const ra = at(xr, y), la = at(xl, y);
+    const rc = ra.length ? ra[ri(ra.length)] : null, lc = la.length ? la[ri(la.length)] : null;
+    if (!rc || !lc){ divide(c, rc ? xl : xr, y); continue; }
+    const rI = immortal(rc), lI = immortal(lc);
+    if (rI && lI){ c.mit = false; continue; }
+    let victim, tx;
+    if (lI){ victim = rc; tx = xr; }
+    else if (rI){ victim = lc; tx = xl; }
+    else {
+      const rOlder = rc.life > lc.life || (rc.life === lc.life && (rc.off < lc.off || (rc.off === lc.off && R() < .5)));
+      victim = rOlder ? rc : lc; tx = rOlder ? xr : xl;
+    }
+    kill(victim, 11); D.nb++;
+    divide(c, tx, y);
+  }
+}
+function fillGaps(y){
+  for (const x of shuffle(ODD_X.slice())){
+    if (at(x, y).length) continue;
+    let donor = null;
+    for (const s of (R() < .5 ? [2, -2] : [-2, 2])){
+      const a = at(wrap(x + s), y).filter(c => !c.pre);
+      if (a.length){ donor = a[ri(a.length)]; break; }
+    }
+    if (!donor){
+      const a = [];
+      for (const xx of ODD_X) for (const c of at(xx, y)) if (!c.pre) a.push(c);
+      if (a.length) donor = a[ri(a.length)];
+    }
+    if (donor){ divide(donor, x, y); }
+  }
+}
+function moveNeo(list){
+  if (!list) return;
+  shuffle(list);
+  for (const c of list){
+    if (!c.alive || c.tum || c.mv === hour) continue;
+    const d = ri(90) * Math.PI / 180 * (R() < .5 ? 1 : -1);
+    const sx = Math.sin(d), cy = Math.cos(d);
+    const nx = wrap(c.x + Math.sign(sx) * Math.round(Math.abs(sx)));
+    const ny = Math.min(H - 1, c.y + Math.round(cy));
+    moveTo(c, nx, ny); c.mv = hour;
+    if (c.life % c.mitT === 0) divide(c, nx, ny);
+  }
+}
+function tumoralMitosis(){
+  const n = cells.length;
+  for (let i = 0; i < n; i++){
+    const c = cells[i];
+    if (!c.alive || !c.tum || c.life % c.mitT) continue;
+    const [dx, dy] = N8[ri(8)];
+    divide(c, wrap(c.x + dx), Math.max(0, Math.min(H - 1, c.y + dy)));
+  }
+}
+function stepImm(im, d){
+  let ny = im.y + Math.cos(im.h) * d;
+  if (ny < 0 || ny > H - 1){ im.h = Math.PI - im.h; ny = im.y + Math.cos(im.h) * d; }   // reflect at crypt base and mouth
+  im.x = (((im.x + Math.sin(im.h) * d) % W) + W) % W; im.y = ny;                  // the crypt wraps around its circumference
+}
+function findNeo(im){
+  const px = wrap(Math.round(im.x)), py = Math.round(im.y);
+  let best = null, bd = 4.0001;
+  for (let dy = -2; dy <= 2; dy++){
+    const y = py + dy; if (y < 0 || y >= H) continue;
+    for (let dx = -2; dx <= 2; dx++){
+      for (const c of at(wrap(px + dx), y)){
+        if (!c.pre) continue;
+        let ddx = Math.abs(c.x - im.x); ddx = Math.min(ddx, W - ddx);
+        const dd = ddx * ddx + (c.y - im.y) * (c.y - im.y);
+        if (dd <= bd){ bd = dd; best = c; }
+      }
+    }
+  }
+  return best;
+}
+function environment(){
+  hyp.fill(0);
+  for (const c of cells) if (c.alive && c.pre) hyp[c.x + c.y * W]++;
+  if (P.immPerHot > 0){
+    for (let k = 0; k < hyp.length; k++) if (hyp[k] >= P.immThr)
+      for (let i = 0; i < P.immPerHot; i++) immune.push({ x:k % W, y:(k / W) | 0, h:R() * 2 * Math.PI, task:0, life:0, trail:null });
+  }
+  // NK patrol: a persistent random walk of 6–7 µm/min, walked 1 patch at a time; the first neoplastic
+  // cell detected within 2 patches is approached and killed, at most one kill per hour.
+  const vLo = P.nkSpeed * 6 / 6.5, vHi = P.nkSpeed * 7 / 6.5;
+  for (const im of immune){
+    im.life++;
+    const trail = [im.x, im.y];
+    const steps = Math.round(unif(vLo, vHi));
+    let t = findNeo(im);
+    for (let i = 0; !t && i < steps; i++){
+      im.h += rnorm(0, TURN); stepImm(im, 1);
+      trail.push(im.x, im.y);
+      t = findNeo(im);
+    }
+    if (t){ im.x = t.x; im.y = t.y; trail.push(im.x, im.y); kill(t, 14); D.imm++; im.task++; }
+    im.trail = trail;
+  }
+}
+function stemAllele(){ return R() < P.stemP ? (R() < .5 ? 1 : 2) : 0; }
+function newFirstLine(){
+  for (const x of ODD_X){
+    if (at(x, 1).length) continue;
+    const c = makeCell(x, 1, true);
+    c.apc = stemAllele(); c.kras = stemAllele(); c.p53 = stemAllele();
+    phenotype(c); gadd(c); cells.push(c); logEv(1, c);
+  }
+}
+
+function tick(){
+  if (stopped) return;
+  hour++;
+  for (const c of cells){ c.life++; if (!c.tum) phenotype(c); }
+  immune = immune.filter(im => im.task < P.immKills && im.life <= P.immLife);
+  for (const c of cells){                                                       // DEATH-INACTIVITY
+    if (!c.alive) continue;
+    if (c.life > c.maxLife){ kill(c, 10); if (c.tum) D.tum++; else D.life++; continue; }
+    if (c.y > EXIT_Y){ kill(c, 12); D.exit++; continue; }
+    if (hyp[c.x + c.y * W] >= P.hypThr){ kill(c, 13); D.hyp++; continue; }
+    if (c.sg >= P.regThr && c.p53 === 0){ kill(c, 15); D.p53++; continue; }     // only wild-type homozygous TP53 triggers apoptosis
+  }
+  const neoRows = new Array(H);
+  for (const c of cells) if (c.alive && c.pre && !c.tum) (neoRows[c.y] || (neoRows[c.y] = [])).push(c);
+  for (let L = EXIT_Y; L >= 1; L -= 3){
+    forward(L);
+    mitosisMain(L + 3);
+    fillGaps(L + 3);
+    moveNeo(neoRows[L]); moveNeo(neoRows[L + 1]); moveNeo(neoRows[L + 2]);
+  }
+  tumoralMitosis();
+  environment();
+  newFirstLine();
+  cells = cells.filter(c => c.alive);
+  record();
+  if (hour >= MAXH) halt("One simulated year (8,760 h) completed.");
+  else if (last.taFrac >= .75) halt("Transit-amplifying cells reached 75% of the crypt.");
+  else if (cells.length >= 10000) halt("The crypt reached 10,000 cells.");
+}
+function halt(msg){ stopped = true; stopReason = msg; running = false; }
+
+function record(){
+  let ta = 0, df = 0, pr = 0, ad = 0, tu = 0, taAll = 0;
+  const g = new Int32Array(9);
+  for (const c of cells){
+    if (c.ta) taAll++;
+    g[pc(c.apc)]++; g[3 + pc(c.kras)]++; g[6 + pc(c.p53)]++;
+    if (c.y < 3) continue;
+    if (!c.pre){ if (c.ta) ta++; else df++; }
+    else if (c.tum) tu++; else if (c.ade) ad++; else pr++;
+  }
+  const n = cells.length || 1, h = hour, hh = Math.max(1, hour);
+  S.ta[h] = ta; S.df[h] = df; S.pr[h] = pr; S.ad[h] = ad; S.tu[h] = tu; S.im[h] = immune.length;
+  S.dPhys[h] = hour ? (D.life + D.nb) / hh : 0; S.dHyp[h] = hour ? D.hyp / hh : 0; S.dImm[h] = hour ? D.imm / hh : 0;
+  S.dTum[h] = hour ? D.tum / hh : 0; S.dP53[h] = hour ? D.p53 / hh : 0;
+  for (let i = 0; i < 9; i++) S.g[i][h] = g[i] / n;
+  last = { ta, df, pr, ad, tu, taFrac: taAll / n, n: cells.length };
+  const neo = pr + ad + tu;
+  if (neo > peakNeo){
+    peakNeo = neo; peakHour = hour;
+    const hist = [];
+    for (let k = 0; k < hyp.length; k++){ const v = hyp[k]; if (v){ while (hist.length <= v) hist.push(0); hist[v]++; } }
+    peakHist = hist;
+  }
+}
+
+/* ---------- colours ---------- */
+const root = document.documentElement;
+let COL = {};
+function hex2rgb(h){ h = h.trim().replace("#", ""); if (h.length === 3) h = h.split("").map(c => c + c).join(""); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function mix(a, b, t){ const A = hex2rgb(a), B = hex2rgb(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")"; }
+function readColors(){
+  const cs = getComputedStyle(root), v = n => cs.getPropertyValue(n).trim();
+  COL = { bg:v("--bg"), panel:v("--panel"), ink:v("--ink"), muted:v("--muted"), line:v("--line"), accent:v("--accent"),
+    stroma:v("--stroma"), stromaEdge:v("--stroma-edge"),
+    ta:v("--c-ta"), diff:v("--c-diff"), pre:v("--c-pre"), ade:v("--c-ade"), tum:v("--c-tum"), imm:v("--c-imm"),
+    gwt:v("--g-wt"), ghet:v("--g-het"), gmut:v("--g-mut") };
+  COL.shade = {};
+  for (const k of ["ta", "diff", "pre", "ade", "tum"]) COL.shade[k] = [COL[k], mix(COL[k], COL.panel, .22), mix(COL[k], COL.ink, .18)];
+}
+
+/* ---------- crypt rendering ---------- */
+const cv = document.getElementById("crypt"), cx = cv.getContext("2d");
+const ML = 30, MR = 22, MT = 6, MB = 6;
+let s = 2, dpr = 1, selected = null;
+function sizeCrypt(){
+  const narrow = window.innerWidth <= 900;
+  const target = narrow ? Math.min(520, window.innerHeight * .62) : Math.max(420, Math.min(840, window.innerHeight - 250));
+  s = Math.max(1.4, target / H);
+  dpr = window.devicePixelRatio || 1;
+  const w = Math.round(W * s + ML + MR), h = Math.round(H * s + MT + MB);
+  cv.style.width = w + "px"; cv.style.height = h + "px";
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+}
+const X = u => ML + (u + .5) * s;
+const Y = v => MT + (H - .5 - v) * s;
+function typeOf(c){ return !c.pre ? (c.ta ? "ta" : "diff") : c.tum ? "tum" : c.ade ? "ade" : "pre"; }
+function drawCrypt(){
+  const w = cv.width / dpr, h = cv.height / dpr;
+  cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cx.clearRect(0, 0, w, h);
+  cx.fillStyle = COL.stroma; cx.fillRect(ML, MT, W * s, H * s);
+  // axis: layers
+  cx.font = "10px " + getComputedStyle(root).getPropertyValue("--f-mono");
+  cx.fillStyle = COL.muted; cx.strokeStyle = COL.line; cx.lineWidth = 1; cx.textAlign = "right"; cx.textBaseline = "middle";
+  for (const L of [0, 25, 50, 75, 100]){
+    const py = Math.round(Y(L * 3 - 1.5)) + .5;
+    cx.beginPath(); cx.moveTo(ML - 5, py); cx.lineTo(ML, py); cx.stroke();
+    cx.fillText(String(L), ML - 7, Math.min(h - 6, Math.max(6, py)));
+  }
+  // β-catenin bar (1 at the base, 0 at the mouth)
+  const bx = ML + W * s + 8, g = cx.createLinearGradient(0, Y(-.5), 0, Y(H - .5));
+  g.addColorStop(0, COL.accent); g.addColorStop(1, COL.panel);
+  cx.fillStyle = g; cx.fillRect(bx, MT, 7, H * s);
+  cx.strokeStyle = COL.line; cx.strokeRect(bx + .5, MT + .5, 6, H * s - 1);
+
+  cx.save(); cx.beginPath(); cx.rect(ML, MT, W * s, H * s); cx.clip();
+  const gap = s >= 2 ? .5 : .3;
+  const groups = {};
+  const neo = [];
+  for (const c of cells){
+    if (c.pre){ neo.push(c); continue; }
+    const k = typeOf(c) + (c.id % 3);
+    (groups[k] || (groups[k] = [])).push(c);
+  }
+  for (const k in groups){
+    const t = k.slice(0, -1), v = +k.slice(-1);
+    cx.fillStyle = COL.shade[t][v]; cx.beginPath();
+    for (const c of groups[k]) cx.rect(X(c.x - 1) + gap, Y(c.y + 1.5) + gap, 2 * s - 2 * gap, 3 * s - 2 * gap);
+    cx.fill();
+  }
+  const ng = {};
+  for (const c of neo){ const k = typeOf(c) + (c.id % 3); (ng[k] || (ng[k] = [])).push(c); }
+  cx.lineWidth = Math.max(.6, s * .3);
+  for (const k in ng){
+    const t = k.slice(0, -1), v = +k.slice(-1);
+    cx.fillStyle = COL.shade[t][v]; cx.strokeStyle = COL.shade[t][2]; cx.beginPath();
+    for (const c of ng[k]){ const ux = X(c.x + c.jx * .7), uy = Y(c.y + c.jy * .7); cx.moveTo(ux + s, uy); cx.ellipse(ux, uy, s, s * 1.25, 0, 0, Math.PI * 2); }
+    cx.fill(); cx.stroke();
+  }
+  if (immune.length){
+    // last hour's patrol paths, broken where they wrap around the circumference
+    cx.strokeStyle = COL.imm; cx.globalAlpha = .35; cx.lineWidth = Math.max(.6, s * .3); cx.beginPath();
+    for (const im of immune){
+      const t = im.trail; if (!t || t.length < 4) continue;
+      cx.moveTo(X(t[0]), Y(t[1]));
+      for (let i = 2; i < t.length; i += 2){
+        if (Math.abs(t[i] - t[i - 2]) > W / 2) cx.moveTo(X(t[i]), Y(t[i + 1]));
+        else cx.lineTo(X(t[i]), Y(t[i + 1]));
+      }
+    }
+    cx.stroke(); cx.globalAlpha = 1;
+    cx.fillStyle = COL.imm; cx.strokeStyle = COL.panel; cx.lineWidth = Math.max(.8, s * .35); cx.beginPath();
+    for (const im of immune){ const ux = X(im.x), uy = Y(im.y); cx.moveTo(ux + s * 1.3, uy); cx.arc(ux, uy, s * 1.3, 0, Math.PI * 2); }
+    cx.fill(); cx.stroke();
+  }
+  const f = focusView();
+  if (f){
+    const half = zoomW / 2, rw = zoomW * s, left = X(f.x - half) - .5 * s, top = Y(f.y + half) - .5 * s;
+    cx.strokeStyle = COL.ink; cx.lineWidth = 1.5;
+    for (const o of [-W * s, 0, W * s]) cx.strokeRect(left + o + .75, top + .75, rw - 1.5, rw - 1.5);
+  }
+  cx.restore();
+  cx.strokeStyle = COL.stromaEdge; cx.lineWidth = 1; cx.strokeRect(ML + .5, MT + .5, W * s - 1, H * s - 1);
+}
+
+/* ---------- inspector ---------- */
+const NAMES = { ta:"Transit-amplifying cell", diff:"Differentiated cell", pre:"Pre-adenoma cell", ade:"Adenoma cell", tum:"Tumoral cell" };
+const alle = b => "[" + (b & 1) + " " + ((b >> 1) & 1) + "]";
+const pexp = e => "10<sup>−" + (+e.toFixed(1)) + "</sup>";
+cv.addEventListener("pointerdown", ev => {
+  const r = cv.getBoundingClientRect();
+  const u = (ev.clientX - r.left - ML) / s - .5, v = H - .5 - (ev.clientY - r.top - MT) / s;
+  if (u < -.5 || u > W - .5 || v < -.5 || v > H - .5) return;
+  pick(u, v);
+});
+function pick(u, v){
+  u = ((u % W) + W) % W;
+  let best = null, bd = 9;
+  for (const im of immune){ let dx = Math.abs(im.x - u); dx = Math.min(dx, W - dx); const d = dx * dx + (im.y - v) ** 2; if (d < bd){ bd = d; best = { imm:true, ref:im }; } }
+  const pu = Math.round(u), pv = Math.round(v);
+  for (let dy = -3; dy <= 3; dy++) for (let dx = -2; dx <= 2; dx++){
+    const y = pv + dy; if (y < 0 || y >= H) continue;
+    for (const c of at(wrap(pu + dx), y)){
+      const cxp = c.x + (c.pre ? c.jx * .7 : 0), cyp = c.y + (c.pre ? c.jy * .7 : 0);
+      let ddx = Math.abs(cxp - u); ddx = Math.min(ddx, W - ddx);
+      const d = c.pre ? ddx * ddx + (cyp - v) ** 2 : (ddx / 1) ** 2 + ((cyp - v) / 1.5) ** 2;
+      if (d < bd || (c.pre && d < bd + 1)){ bd = d; best = { imm:false, ref:c }; }
+    }
+  }
+  if (!best) return;
+  selected = best; lastFocus = null; focusView(); updateInspect(); dirty = true;
+}
+
+/* ---------- zoom window ---------- */
+const zc = document.getElementById("zoom"), zx = zc.getContext("2d");
+let zoomW = 20, zSize = 0, lastFocus = null;
+function isAlive(sel){ return sel.imm ? immune.includes(sel.ref) : sel.ref.alive; }
+function focusView(){
+  if (!selected) return null;
+  if (isAlive(selected)){
+    const c = selected.ref;
+    lastFocus = { x: c.x + (c.pre ? c.jx * .7 : 0), y: c.y + (c.pre ? c.jy * .7 : 0) };
+  }
+  if (!lastFocus) return null;
+  const half = zoomW / 2;
+  return { x: lastFocus.x, y: Math.max(half - .5, Math.min(H - .5 - half, lastFocus.y)) };
+}
+function sizeZoom(){
+  const w = zc.clientWidth; if (!w) return;
+  zSize = w; zc.width = Math.round(w * dpr); zc.height = Math.round(w * dpr);
+}
+function hashJ(id, k){ const x = Math.sin(id * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); }
+function drawZoom(){
+  const w = zSize; if (!w) return;
+  zx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  zx.fillStyle = COL.stroma; zx.fillRect(0, 0, w, w);
+  const f = focusView();
+  const mono = getComputedStyle(root).getPropertyValue("--f-mono");
+  if (!f){
+    zx.fillStyle = COL.muted; zx.font = "12px " + mono; zx.textAlign = "center"; zx.textBaseline = "middle";
+    zx.fillText("Click a cell in the crypt", w / 2, w / 2); return;
+  }
+  const z = w / zoomW, half = zoomW / 2;
+  const ZX = u => { let d = u - f.x; d = ((d + W / 2) % W + W) % W - W / 2; return w / 2 + d * z; };
+  const ZY = v => w / 2 - (v - f.y) * z;
+  const x0 = Math.floor(f.x - half) - 2, x1 = Math.ceil(f.x + half) + 2;
+  const y0 = Math.max(0, Math.floor(f.y - half) - 2), y1 = Math.min(H - 1, Math.ceil(f.y + half) + 2);
+  // crowding: patches tinted by neoplastic cells per patch, relative to the hypoxia threshold
+  for (let y = y0; y <= y1; y++) for (let xx = x0; xx <= x1; xx++){
+    const n = hyp[wrap(xx) + y * W]; if (!n) continue;
+    zx.globalAlpha = Math.min(.55, .12 + .43 * n / P.hypThr);
+    zx.fillStyle = n >= P.hypThr ? COL.gmut : COL.ade;
+    zx.fillRect(ZX(xx) - z / 2, ZY(y) - z / 2, z, z);
+  }
+  zx.globalAlpha = 1;
+  const phys = [], neo = [];
+  for (let y = y0; y <= y1; y++) for (let xx = x0; xx <= x1; xx++) for (const c of at(wrap(xx), y)) (c.pre ? neo : phys).push(c);
+  const gap = Math.max(1, z * .07), badges = z >= 11;
+  zx.lineWidth = Math.max(1, z * .06);
+  for (const c of phys){
+    const t = typeOf(c), sh = COL.shade[t], px = ZX(c.x), py = ZY(c.y);
+    zx.fillStyle = sh[c.id % 2]; zx.strokeStyle = sh[2];
+    zx.beginPath();
+    if (zx.roundRect) zx.roundRect(px - z + gap, py - 1.5 * z + gap, 2 * z - 2 * gap, 3 * z - 2 * gap, Math.min(z * .35, 8));
+    else zx.rect(px - z + gap, py - 1.5 * z + gap, 2 * z - 2 * gap, 3 * z - 2 * gap);
+    zx.fill(); zx.stroke();
+    zx.fillStyle = mix(sh[0], COL.ink, .5);
+    zx.beginPath(); zx.ellipse(px, py + (t === "diff" ? z * .55 : 0), z * .42, z * .55, 0, 0, Math.PI * 2); zx.fill();
+  }
+  for (const c of neo){
+    const t = typeOf(c), sh = COL.shade[t], px = ZX(c.x + c.jx * .7), py = ZY(c.y + c.jy * .7);
+    zx.fillStyle = sh[c.id % 2]; zx.strokeStyle = sh[2]; zx.beginPath();
+    if (t === "tum"){
+      const N = 11;
+      for (let k = 0; k <= N; k++){
+        const a = k / N * Math.PI * 2, rr = 1 + .22 * (hashJ(c.id, k % N) - .5);
+        const qx = px + Math.cos(a) * z * rr, qy = py + Math.sin(a) * z * 1.2 * rr;
+        k ? zx.lineTo(qx, qy) : zx.moveTo(qx, qy);
+      }
+    } else zx.ellipse(px, py, z, z * 1.25, 0, 0, Math.PI * 2);
+    zx.fill(); zx.stroke();
+    zx.fillStyle = mix(sh[0], COL.ink, .55);
+    zx.beginPath(); zx.ellipse(px, py, z * (t === "tum" ? .6 : .48), z * (t === "tum" ? .66 : .55), 0, 0, Math.PI * 2); zx.fill();
+  }
+  if (badges){
+    const b = z * .3, gcol = n => n === 0 ? COL.gwt : n === 1 ? COL.ghet : COL.gmut;
+    for (const c of phys.concat(neo)){
+      const px = ZX(c.x + (c.pre ? c.jx * .7 : 0)), py = ZY(c.y + (c.pre ? c.jy * .7 : 0)) - (c.pre ? z * .95 : z * 1.1);
+      [c.apc, c.kras, c.p53].forEach((g, i) => {
+        zx.fillStyle = gcol(pc(g)); zx.fillRect(px + (i - 1.5) * b * 1.15 + b * .075, py - b / 2, b, b);
+      });
+    }
+  }
+  if (immune.length){
+    zx.strokeStyle = COL.imm; zx.globalAlpha = .45; zx.lineWidth = Math.max(1, z * .12); zx.beginPath();
+    for (const im of immune){
+      const t = im.trail; if (!t || t.length < 4) continue;
+      zx.moveTo(ZX(t[0]), ZY(t[1]));
+      for (let i = 2; i < t.length; i += 2){
+        if (Math.abs(t[i] - t[i - 2]) > W / 2) zx.moveTo(ZX(t[i]), ZY(t[i + 1]));
+        else zx.lineTo(ZX(t[i]), ZY(t[i + 1]));
+      }
+    }
+    zx.stroke(); zx.globalAlpha = 1;
+    for (const im of immune){
+      const px = ZX(im.x), py = ZY(im.y);
+      if (px < -2 * z || px > w + 2 * z || py < -2 * z || py > w + 2 * z) continue;
+      zx.fillStyle = COL.imm; zx.strokeStyle = COL.panel; zx.lineWidth = Math.max(1, z * .1);
+      zx.beginPath(); zx.arc(px, py, z * .9, 0, Math.PI * 2); zx.fill(); zx.stroke();
+      zx.fillStyle = mix(COL.imm, COL.ink, .55);
+      for (let k = 0; k < 3; k++){ const a = k * 2.1 + .4; zx.beginPath(); zx.arc(px + Math.cos(a) * z * .32, py + Math.sin(a) * z * .32, z * .22, 0, Math.PI * 2); zx.fill(); }
+    }
+  }
+  // selection ring
+  if (isAlive(selected)){
+    const c = selected.ref, px = ZX(c.x + (c.pre ? c.jx * .7 : 0)), py = ZY(c.y + (c.pre ? c.jy * .7 : 0));
+    zx.strokeStyle = COL.ink; zx.lineWidth = 2; zx.setLineDash([5, 4]);
+    zx.beginPath(); zx.ellipse(px, py, z * 1.45, z * 1.9, 0, 0, Math.PI * 2); zx.stroke(); zx.setLineDash([]);
+  } else {
+    zx.fillStyle = COL.ink; zx.font = "600 12px " + mono; zx.textAlign = "center"; zx.textBaseline = "top";
+    zx.fillText("Selected cell is gone", w / 2, 10);
+  }
+  // layer scale on the left edge
+  zx.font = "10px " + mono; zx.textAlign = "left"; zx.textBaseline = "middle";
+  const every = zoomW <= 10 ? 1 : zoomW <= 20 ? 2 : 5;
+  for (let L = 0; L < 100; L += every){
+    const py = ZY(1 + 3 * L); if (py < 8 || py > w - 8) continue;
+    zx.fillStyle = COL.panel; zx.globalAlpha = .8; zx.fillRect(2, py - 7, 30, 14); zx.globalAlpha = 1;
+    zx.fillStyle = COL.muted; zx.fillText("L" + L, 5, py);
+  }
+}
+zc.addEventListener("pointerdown", ev => {
+  const f = focusView(); if (!f || !zSize) return;
+  const r = zc.getBoundingClientRect(), z = zSize / zoomW;
+  pick(f.x + (ev.clientX - r.left - zSize / 2) / z, f.y - (ev.clientY - r.top - zSize / 2) / z);
+});
+document.getElementById("zoomSeg").addEventListener("click", ev => {
+  const b = ev.target.closest("button"); if (!b) return;
+  zoomW = +b.dataset.w;
+  document.querySelectorAll("#zoomSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  dirty = true;
+});
+
+/* ---------- save frame (downloads capability) ---------- */
+const saveBtn = document.getElementById("saveBtn"), saveMsg = document.getElementById("saveMsg");
+let downloads = null;
+try {
+  if (window.claude && window.claude.use) window.claude.use("downloads").then(d => {
+    downloads = d; saveBtn.hidden = !d;
+    document.querySelectorAll("[data-needs-save]").forEach(b => b.hidden = !d);
+    document.getElementById("noSave").hidden = !!d;
+  }, () => {});
+} catch (e) {}
+function frameCaption(){
+  const sel = selected, lines = [];
+  if (sel && !sel.imm){
+    const c = sel.ref, t = typeOf(c);
+    lines.push(`${NAMES[t]} #${c.id}${c.alive ? "" : " (gone)"} · hour ${hour.toLocaleString("en-US")}, day ${Math.floor(hour / 24)}`);
+    lines.push(`APC ${alle(c.apc)}  KRAS ${alle(c.kras)}  TP53 ${alle(c.p53)}  ·  reg. hits ${c.sg}/12  ·  layer ${Math.round(c.y / 3)}  ·  clone #${c.clone}, gen ${c.gen}`);
+  } else {
+    lines.push(`Immune cell · hour ${hour.toLocaleString("en-US")}, day ${Math.floor(hour / 24)}`);
+    lines.push(sel ? `Kills ${sel.ref.task} of ${P.immKills} · age ${sel.ref.life} h` : "");
+  }
+  lines.push(`Mutation probability 10^-${P.mutExp} · seed ${P.seed} · view ${zoomW / 2} cells wide · Colonic Crypt Model`);
+  return lines;
+}
+saveBtn.addEventListener("click", () => {
+  if (!downloads || !selected) return;
+  drawZoom();
+  const r = dpr, w = zc.width, cap = Math.round(78 * r);
+  const off = document.createElement("canvas"); off.width = w; off.height = w + cap;
+  const g = off.getContext("2d"), cs = getComputedStyle(root);
+  g.fillStyle = COL.panel; g.fillRect(0, 0, off.width, off.height);
+  g.drawImage(zc, 0, 0);
+  const lines = frameCaption();
+  g.textBaseline = "alphabetic";
+  g.fillStyle = COL.ink; g.font = `600 ${13 * r}px ${cs.getPropertyValue("--f-ui")}`; g.fillText(lines[0], 12 * r, w + 24 * r);
+  g.fillStyle = COL.muted; g.font = `${11 * r}px ${cs.getPropertyValue("--f-mono")}`;
+  g.fillText(lines[1], 12 * r, w + 44 * r); g.fillText(lines[2], 12 * r, w + 62 * r);
+  const id = selected.imm ? "immune" : "cell" + selected.ref.id;
+  const filename = `crypt-zoom_${id}_h${hour}.png`;
+  off.toBlob(blob => {
+    if (!blob){ saveMsg.textContent = "Could not render the frame."; return; }
+    saveMsg.textContent = "Confirm the save in the dialog.";
+    downloads.save({ filename, data: blob }).then(
+      () => { saveMsg.textContent = `Saved ${filename}.`; },
+      e => {
+        const code = e && e.code;
+        if (code === "declined") saveMsg.textContent = "Save cancelled.";
+        else if (code === "rate_limited") saveMsg.textContent = "A save dialog is already open. Try again in a moment.";
+        else if (code === "too_large") saveMsg.textContent = "The frame is too large to save here.";
+        else { saveMsg.textContent = "Saving isn't available in this view."; saveBtn.hidden = true; }
+      });
+  }, "image/png");
+});
+
+function updateInspect(){
+  const el = document.getElementById("inspect");
+  if (!selected){ el.innerHTML = "<p>Click a cell in the crypt or in the zoom window.</p>"; return; }
+  const c = selected.ref;
+  if (selected.imm){
+    if (!immune.includes(c)){ el.innerHTML = "<h3>Immune cell</h3><p>This immune cell has died.</p>"; return; }
+    el.innerHTML = `<h3><span class="sw" style="background:var(--c-imm)"></span>Immune cell (NK / macrophage-like)</h3>
+      <dl class="kv"><dt>Age</dt><dd>${c.life} h of ${P.immLife} h</dd><dt>Kills</dt><dd>${c.task} of ${P.immKills}</dd><dt>Layer</dt><dd>${Math.round(c.y / 3)}</dd></dl>`;
+    return;
+  }
+  if (!c.alive){ el.innerHTML = `<h3>${NAMES[typeOf(c)]} #${c.id}</h3><p>This cell has died or left through the crypt mouth.</p>`; return; }
+  const t = typeOf(c);
+  el.innerHTML = `<h3><span class="sw" style="background:var(--c-${t})"></span>${NAMES[t]} <span class="mono" style="font-weight:400;color:var(--muted)">#${c.id}</span></h3>
+    <dl class="kv">
+      <dt>Age</dt><dd>${c.life} h of ${Math.round(c.maxLife)} h</dd>
+      <dt>Layer</dt><dd>${Math.round(c.y / 3)} · β-cat ${(1 - c.y / 300).toFixed(2)}</dd>
+      <dt>Mitoses</dt><dd>${c.off} · cycle ${c.mitT} h</dd>
+      <dt>Lineage</dt><dd>${c.parent ? `parent #${c.parent}` : "founder"} · clone #${c.clone} · gen ${c.gen}</dd>
+      <dt>APC</dt><dd>${alle(c.apc)}</dd><dt>KRAS</dt><dd>${alle(c.kras)}</dd><dt>TP53</dt><dd>${alle(c.p53)}</dd>
+      <dt>Regulatory</dt><dd>${c.reg.map(alle).join(" ")}</dd>
+      <dt>Reg. hits</dt><dd>${c.sg} of 12${c.p53 === 0 ? ` · apoptosis at ${P.regThr}` : " · TP53 not wild-type"}</dd>
+      <dt>P(mut)</dt><dd>${pexp(c.eA)} · ${pexp(c.eK)} · ${pexp(c.eP)}</dd>
+    </dl>`;
+}
+
+/* ---------- charts ---------- */
+function nice(v){ if (v <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))), f = v / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * e; }
+const fmt = v => Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en-US") : (Number.isInteger(v) ? String(v) : (+v.toFixed(2)).toString());
+function plot(canvas, o){
+  const w = canvas.clientWidth; if (!w) return;
+  const h = canvas.clientHeight, r = window.devicePixelRatio || 1;
+  if (canvas.width !== Math.round(w * r) || canvas.height !== Math.round(h * r)){ canvas.width = Math.round(w * r); canvas.height = Math.round(h * r); }
+  const g = canvas.getContext("2d"); g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, w, h);
+  const m = { l:46, r:10, t:14, b:24 }, pw = w - m.l - m.r, ph = h - m.t - m.b;
+  const n = o.len, xMax = Math.max(o.xMin || 1, n - 1);
+  const mono = getComputedStyle(root).getPropertyValue("--f-mono");
+  g.font = "10px " + mono; g.fillStyle = COL.muted; g.strokeStyle = COL.line; g.lineWidth = 1;
+  let ymax = o.yMax;
+  if (ymax == null){ ymax = 0; for (const sr of o.series) for (let i = 0; i < n; i++) if (sr.y[i] > ymax) ymax = sr.y[i]; }
+  const log = !!o.logY;
+  const y1 = log ? Math.max(1, Math.ceil(Math.log10(Math.max(10, ymax)))) : nice(ymax || 1);
+  const Yp = v => { if (log){ if (v <= 0) return null; v = Math.log10(v); } return m.t + ph - v / y1 * ph; };
+  const ticks = log ? Array.from({length:y1 + 1}, (_, k) => Math.pow(10, k)) : [0, .25, .5, .75, 1].map(f => f * y1);
+  g.textAlign = "right"; g.textBaseline = "middle";
+  for (const t of ticks){ const py = Math.round(Yp(t)) + .5; g.beginPath(); g.moveTo(m.l, py); g.lineTo(m.l + pw, py); g.stroke(); g.fillText(fmt(t), m.l - 6, py); }
+  // x ticks
+  const x0 = o.x0 || 0, dx = o.dx || 1, span = xMax * dx, step = nice(span / 5);
+  g.textAlign = "center"; g.textBaseline = "top";
+  const bw = o.bars ? pw / (xMax + 1) : 0;
+  const Xp = i => o.bars ? m.l + (i + .5) * bw : m.l + i / xMax * pw;
+  for (let v = Math.ceil(x0 / step) * step; v <= x0 + span + 1e-9; v += step){ const px = Xp((v - x0) / dx); g.fillText(fmt(v), px, m.t + ph + 6); }
+  if (o.yTitle){ g.textAlign = "left"; g.textBaseline = "bottom"; g.fillText(o.yTitle, 4, m.t - 2); }
+  if (o.xTitle){ g.textAlign = "right"; g.textBaseline = "top"; g.fillText(o.xTitle, m.l + pw, m.t + ph + 6 + 0); }
+  if (o.empty && n <= 1){ g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(o.empty, m.l + pw / 2, m.t + ph / 2); return; }
+  for (const sr of o.series){
+    g.strokeStyle = sr.c; g.fillStyle = sr.c;
+    if (o.bars){
+      for (let i = 0; i < n; i++){ const py = Yp(sr.y[i]); if (py == null || sr.y[i] <= 0) continue; g.fillRect(m.l + i * bw + bw * .12, py, Math.max(1, bw * .76), m.t + ph - py); }
+      continue;
+    }
+    g.lineWidth = 1.3; g.lineJoin = "round"; g.beginPath();
+    if (n - 1 <= pw * 1.5){
+      for (let i = 0; i < n; i++){ const px = Xp(i), py = Yp(sr.y[i]); if (i) g.lineTo(px, py); else g.moveTo(px, py); }
+    } else {
+      const b = (n - 1) / pw;
+      for (let p = 0; p < pw; p++){
+        const i0 = Math.floor(p * b), i1 = Math.min(n, Math.floor((p + 1) * b) + 1);
+        let lo = Infinity, hi = -Infinity; for (let i = i0; i < i1; i++){ const v = sr.y[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
+        const px = m.l + p;
+        if (p) g.lineTo(px, Yp(hi)); else g.moveTo(px, Yp(hi));
+        g.lineTo(px, Yp(lo));
+      }
+    }
+    g.stroke();
+  }
+}
+function legend(el, items){ el.innerHTML = items.map(([c, t]) => `<span><span class="sw" style="background:var(${c})"></span>${t}</span>`).join(""); }
+
+let tab = "pop";
+function drawCharts(){
+  const n = hour + 1, xMin = 24;
+  if (tab === "pop"){
+    plot(document.getElementById("cvPop"), { len:n, xMin, xTitle:"hours", yTitle:"cells", series:[
+      { y:S.df, c:COL.diff }, { y:S.ta, c:COL.ta }, { y:S.pr, c:COL.pre }, { y:S.ad, c:COL.ade }, { y:S.tu, c:COL.tum }, { y:S.im, c:COL.imm } ] });
+  } else if (tab === "death"){
+    plot(document.getElementById("cvDeath"), { len:n, xMin, xTitle:"hours", yTitle:"deaths per hour", series:[
+      { y:S.dPhys, c:COL.ink }, { y:S.dHyp, c:COL.ade }, { y:S.dImm, c:COL.imm }, { y:S.dTum, c:COL.tum }, { y:S.dP53, c:COL.ta } ] });
+  } else if (tab === "geno"){
+    [["cvA", 0], ["cvK", 3], ["cvP", 6]].forEach(([id, o]) => plot(document.getElementById(id), { len:n, xMin, yMax:1, xTitle:"h", series:[
+      { y:S.g[o], c:COL.gwt }, { y:S.g[o + 1], c:COL.ghet }, { y:S.g[o + 2], c:COL.gmut } ] }));
+  } else if (tab === "prol"){
+    let mx = 1; for (const c of cells) if (c.off > mx) mx = c.off;
+    const arr = () => new Float32Array(mx + 1), A = { n:arr(), pre:arr(), ade:arr(), tum:arr() };
+    for (const c of cells){ const t = !c.pre ? "n" : c.tum ? "tum" : c.ade ? "ade" : "pre"; A[t][c.off]++; }
+    plot(document.getElementById("cvOff"), { len:mx + 1, xTitle:"mitoses", yTitle:"cells", series:[
+      { y:A.n, c:COL.ink }, { y:A.pre, c:COL.pre }, { y:A.ade, c:COL.ade }, { y:A.tum, c:COL.tum } ] });
+    const bins = new Float32Array(100); for (let y = 0; y < H; y++) bins[Math.min(99, (y / 3) | 0)] += mitY[y];
+    plot(document.getElementById("cvHeight"), { len:100, bars:true, dx:3, xTitle:"patches", yTitle:"mitoses", series:[{ y:bins, c:COL.accent }] });
+    const ph = peakHist ? Float32Array.from(peakHist.slice(1)) : new Float32Array(0);
+    document.getElementById("patchTitle").textContent = peakHist ? `Neoplastic cells per patch at peak expansion (${peakNeo} cells, hour ${peakHour.toLocaleString("en-US")})` : "Neoplastic cells per patch at peak expansion";
+    plot(document.getElementById("cvPatch"), { len:ph.length, bars:true, x0:1, logY:true, xTitle:"cells per patch", yTitle:"patches", empty:"No neoplastic cells yet", series:[{ y:ph, c:COL.ade }] });
+  }
+}
+
+/* ---------- readouts ---------- */
+const statsEl = document.getElementById("stats");
+function renderStats(){
+  const items = [
+    ["Hour", hour.toLocaleString("en-US"), "day " + Math.floor(hour / 24), null],
+    ["Cells", last.n.toLocaleString("en-US"), null, null],
+    ["TA share", Math.round(last.taFrac * 100) + "%", null, "--c-ta"],
+    ["Pre-adenoma", last.pr, null, "--c-pre"],
+    ["Adenoma", last.ad, null, "--c-ade"],
+    ["Tumoral", last.tu, null, "--c-tum"],
+    ["Immune", immune.length, null, "--c-imm"],
+  ];
+  statsEl.innerHTML = items.map(([k, v, sub, c]) => `<div class="stat"><span>${c ? `<span class="sw" style="background:var(${c})"></span>` : ""}${k}${sub ? " · " + sub : ""}</span><b>${v}</b></div>`).join("");
+  document.getElementById("clock").textContent = hour.toLocaleString("en-US") + " h · day " + Math.floor(hour / 24);
+  const st = document.getElementById("status");
+  st.className = "status" + (stopped ? " stopped" : "");
+  const scen = `mutation probability 10⁻${P.mutExp}, ${P.mitosis} mitosis, seed ${P.seed}`;
+  document.getElementById("evCount").textContent = `${evN.toLocaleString("en-US")} events logged · ${cells.length.toLocaleString("en-US")} living cells`;
+  if (batch && batch.active){
+    st.className = "status";
+    st.innerHTML = `<strong>Replicate runs</strong> · run ${batch.i + 1} of ${batch.queue.length} · ${scen}`;
+    return;
+  }
+  st.innerHTML = stopped ? `<strong>Stopped.</strong> ${stopReason} Reset to run again (${scen}).`
+    : running ? `<strong>Running</strong> · ${scen}` : `<strong>Paused</strong> · ${scen}`;
+  const rb = document.getElementById("runBtn");
+  rb.textContent = running ? "Pause" : "Run"; rb.disabled = stopped; document.getElementById("stepBtn").disabled = stopped || running;
+}
+
+/* ---------- controls ---------- */
+let running = false, speed = 6, dirty = true, lastChart = 0;
+const SUP = { 2:"²", 3:"³", 4:"⁴", 5:"⁵", 6:"⁶", 7:"⁷", 8:"⁸", 9:"⁹" };
+const mutSeg = document.getElementById("mutSeg");
+mutSeg.innerHTML = EXPS.map(e => `<button type="button" data-e="${e}" aria-pressed="${e === P.mutExp}">10<sup>−${e}</sup></button>`).join("");
+mutSeg.addEventListener("click", ev => {
+  const b = ev.target.closest("button"); if (!b) return;
+  P.mutExp = +b.dataset.e;
+  mutSeg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  const was = running; setup(); running = was; selectDefault(); refresh();
+});
+document.getElementById("speedSeg").addEventListener("click", ev => {
+  const b = ev.target.closest("button"); if (!b) return;
+  speed = b.dataset.v === "max" ? Infinity : +b.dataset.v;
+  document.querySelectorAll("#speedSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+});
+document.getElementById("runBtn").addEventListener("click", () => { if (!stopped){ running = !running; renderStats(); } });
+document.getElementById("stepBtn").addEventListener("click", () => { tick(); refresh(); });
+document.getElementById("resetBtn").addEventListener("click", () => { running = false; setup(); selectDefault(); refresh(); });
+function selectDefault(){ selected = null; lastFocus = null; pick(25, 61); if (!selected) updateInspect(); }
+const stem = document.getElementById("stem");
+stem.addEventListener("input", () => { P.stemP = +stem.value; document.getElementById("stemOut").textContent = P.stemP.toFixed(2); });
+const immEl = document.getElementById("immPerHot");
+immEl.addEventListener("input", () => { P.immPerHot = +immEl.value; document.getElementById("immOut").textContent = immEl.value; });
+const hypEl = document.getElementById("hypThr");
+hypEl.addEventListener("input", () => {
+  const v = +hypEl.value, off = v >= 31;
+  P.hypThr = off ? Infinity : v; document.getElementById("hypOut").textContent = off ? "off" : String(v);
+});
+const mitSeg = document.getElementById("mitSeg");
+mitSeg.addEventListener("click", ev => {
+  const b = ev.target.closest("button"); if (!b || b.disabled) return;
+  P.mitosis = b.dataset.m;
+  mitSeg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  const was = running; setup(); running = was; selectDefault(); refresh();
+});
+document.getElementById("seed").addEventListener("change", e => { const v = Math.max(1, Math.round(+e.target.value || 1)); e.target.value = v; P.seed = v; renderStats(); });
+for (const id of ["nkSpeed", "immKills", "immLife", "immThr", "regThr"]){
+  const el = document.getElementById(id);
+  el.addEventListener("change", () => { const lo = +el.min, hi = +el.max; let v = Math.round(+el.value); if (!isFinite(v)) v = P[id]; v = Math.max(lo, Math.min(hi, v)); el.value = v; P[id] = v; });
+}
+document.getElementById("tabs").addEventListener("click", ev => {
+  const b = ev.target.closest("button"); if (!b) return;
+  tab = b.dataset.t;
+  document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
+  document.querySelectorAll(".panel").forEach(p => p.hidden = p.dataset.p !== tab);
+  drawCharts();
+});
+document.getElementById("csvBtn").addEventListener("click", () => {
+  const head = "hour,transit,differentiated,pre_adenoma,adenoma,tumoral,immune,death_phys_per_h,death_hypoxic_per_h,death_immune_per_h,death_tumoral_per_h,death_tp53_per_h,apc_wt,apc_het,apc_mut,kras_wt,kras_het,kras_mut,tp53_wt,tp53_het,tp53_mut";
+  const rows = [head];
+  for (let h = 0; h <= hour; h++){
+    rows.push([h, S.ta[h], S.df[h], S.pr[h], S.ad[h], S.tu[h], S.im[h], S.dPhys[h].toFixed(3), S.dHyp[h].toFixed(3), S.dImm[h].toFixed(3), S.dTum[h].toFixed(3), S.dP53[h].toFixed(3), ...S.g.map(a => a[h].toFixed(4))].join(","));
+  }
+  const text = rows.join("\n"), box = document.getElementById("csvBox"), msg = document.getElementById("copied");
+  const fallback = () => { box.hidden = false; box.value = text; box.focus(); box.select(); msg.textContent = "Select all and copy from the box below."; };
+  try {
+    navigator.clipboard.writeText(text).then(() => { box.hidden = true; msg.textContent = `Copied ${hour + 1} rows.`; }, fallback);
+  } catch (e){ fallback(); }
+});
+
+/* ---------- exports (downloads capability) ---------- */
+const exportMsg = document.getElementById("exportMsg");
+function offerSave(filename, data, msgEl){
+  if (!downloads){ msgEl.textContent = "Saving files isn't available in this view."; return Promise.resolve(false); }
+  msgEl.textContent = "Confirm the save in the dialog.";
+  return downloads.save({ filename, data }).then(
+    () => { msgEl.textContent = `Saved ${filename}.`; return true; },
+    e => {
+      const code = e && e.code;
+      msgEl.textContent = code === "declined" ? "Save cancelled."
+        : code === "rate_limited" ? "A save dialog is already open. Try again in a moment."
+        : code === "too_large" ? "The file is too large to save here."
+        : "Saving isn't available in this view.";
+      return false;
+    });
+}
+const scenTag = () => `mu1e-${P.mutExp}_${P.mitosis}_seed${P.seed}_h${hour}`;
+function paramsObj(){
+  return { model: "Colonic Crypt Model (browser)", mutation_probability: `1e-${P.mutExp}`, mitosis: P.mitosis, stem_heterozygous_p: P.stemP,
+    immune_cells_per_hotspot_per_h: P.immPerHot, nk_speed_patches_per_h: P.nkSpeed, kills_per_immune_cell: P.immKills,
+    immune_lifetime_h: P.immLife, immune_threshold: P.immThr, hypoxia_threshold: isFinite(P.hypThr) ? P.hypThr : "off",
+    tp53_apoptosis_threshold: P.regThr };
+}
+function snapshotCSV(prefix){
+  const rows = [(prefix ? prefix.head + "," : "") + "hour,id,parent,clone,generation,born_h,type,apc,kras,tp53,regulatory_hits,mitoses,age_h,layer,x,y,mitosis_time_h"];
+  for (const c of cells) rows.push((prefix ? prefix.vals + "," : "") + [hour, c.id, c.parent, c.clone, c.gen, c.born, TYPE_NAME[typeCode(c)],
+    al2(c.apc), al2(c.kras), al2(c.p53), c.sg, c.off, c.life, (c.y / 3) | 0, c.x, c.y, c.mitT].join(","));
+  return rows.join("\n");
+}
+function seriesCSV(){
+  const head = "hour,transit,differentiated,pre_adenoma,adenoma,tumoral,immune,death_phys_per_h,death_hypoxic_per_h,death_immune_per_h,death_tumoral_per_h,death_tp53_per_h,apc_wt,apc_het,apc_mut,kras_wt,kras_het,kras_mut,tp53_wt,tp53_het,tp53_mut";
+  const rows = [head];
+  for (let h = 0; h <= hour; h++){
+    rows.push([h, S.ta[h], S.df[h], S.pr[h], S.ad[h], S.tu[h], S.im[h], S.dPhys[h].toFixed(3), S.dHyp[h].toFixed(3), S.dImm[h].toFixed(3), S.dTum[h].toFixed(3), S.dP53[h].toFixed(3), ...S.g.map(a => a[h].toFixed(4))].join(","));
+  }
+  return rows.join("\n");
+}
+document.getElementById("saveEvents").addEventListener("click", () => offerSave(`crypt-events_${scenTag()}.csv`, eventsCSV(), exportMsg));
+document.getElementById("saveSnap").addEventListener("click", () => offerSave(`crypt-cells_${scenTag()}.csv`, snapshotCSV(), exportMsg));
+document.getElementById("saveSeries").addEventListener("click", () => offerSave(`crypt-series_${scenTag()}.csv`, seriesCSV(), exportMsg));
+
+/* ---------- replicate runs ---------- */
+let batch = null, batchResult = null, scen = "current";
+const bInfo = document.getElementById("batchInfo"), bBtn = document.getElementById("batchBtn"), bSave = document.getElementById("batchSave");
+const bEvents = document.getElementById("bEvents");
+const numIn = (id, lo, hi) => { const el = document.getElementById(id); let v = Math.round(+el.value); if (!isFinite(v)) v = lo; v = Math.max(lo, Math.min(hi, v)); el.value = v; return v; };
+function batchQueue(){
+  const seeds = numIn("bSeeds", 1, 100), first = numIn("bFirst", 1, 1e9);
+  const mus = scen === "current" ? [P.mutExp] : EXPS.slice();
+  const mits = scen === "allboth" ? ["differential", "uniform"] : [P.mitosis];
+  const q = [];
+  for (const m of mits) for (const e of mus) for (let s = 0; s < seeds; s++) q.push({ mutExp:e, mitosis:m, seed:first + s });
+  return q;
+}
+function updateBatchPlan(){
+  if (batch && batch.active) return;
+  const n = batchQueue().length;
+  bEvents.disabled = n > 20; if (n > 20) bEvents.checked = false;
+  bInfo.textContent = `${n} run${n === 1 ? "" : "s"} planned.` + (n > 20 ? " Per-cell event logs are available for up to 20 runs." : "");
+}
+document.getElementById("scenSeg").addEventListener("click", ev => {
+  const b = ev.target.closest("button"); if (!b || b.disabled) return;
+  scen = b.dataset.s;
+  document.querySelectorAll("#scenSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  updateBatchPlan();
+});
+for (const id of ["bSeeds", "bFirst"]) document.getElementById(id).addEventListener("change", updateBatchPlan);
+const LOCKED = ["runBtn", "stepBtn", "resetBtn", "seed", "bSeeds", "bFirst", "bBurn", "bStep", "bMax", "bEvents"];
+function lockControls(on){
+  for (const id of LOCKED) document.getElementById(id).disabled = on;
+  document.querySelectorAll("#mutSeg button, #mitSeg button, #scenSeg button").forEach(b => b.disabled = on);
+  if (!on) updateBatchPlan();
+}
+const csvRow = a => a.map(v => v == null ? "" : v).join(",");
+const SUM_HEAD = "run,mutation_probability,mitosis,seed,burn_in_h,end_h,stop_reason,cells,transit,differentiated,pre_adenoma,adenoma,tumoral,immune,first_adenoma_h,first_tumoral_h,peak_neoplastic,divisions,deaths_lifespan,deaths_removed,exits_mouth,deaths_hypoxia,deaths_immune,deaths_tp53,deaths_tumoral_lifespan,mean_regulatory_hits";
+const TS_HEAD = "run,mutation_probability,mitosis,seed,hour,cells,transit,differentiated,pre_adenoma,adenoma,tumoral,immune,divisions,deaths_lifespan,deaths_removed,exits_mouth,deaths_hypoxia,deaths_immune,deaths_tp53,deaths_tumoral_lifespan,apc_wt,apc_het,apc_mut,kras_wt,kras_het,kras_mut,tp53_wt,tp53_het,tp53_mut,mean_regulatory_hits";
+const DKEYS = ["div", "life", "nb", "exit", "hyp", "imm", "p53", "tum"];
+const meanReg = () => { let s = 0; for (const c of cells) s += c.sg; return cells.length ? (s / cells.length).toFixed(4) : ""; };
+function batchSample(){
+  const b = batch, r = b.run, d = DKEYS.map(k => D[k] - b.prevD[k]);
+  b.prevD = Object.assign({}, D);
+  b.ts.push(csvRow([r.n, `1e-${r.mutExp}`, r.mitosis, r.seed, hour, cells.length, last.ta, last.df, last.pr, last.ad, last.tu, immune.length, ...d,
+    ...S.g.map(a => a[hour].toFixed(4)), meanReg()]));
+}
+function startNextRun(){
+  const b = batch;
+  if (b.cancel || b.i >= b.queue.length) return false;
+  const r = Object.assign({ n: b.i + 1 }, b.queue[b.i]);
+  P.mutExp = r.mutExp; P.mitosis = r.mitosis; P.seed = r.seed;
+  logOn = b.cfg.events;
+  setup(); selectDefault();
+  b.run = r; b.firstAde = null; b.firstTum = null; b.burnD = null; b.prevD = Object.assign({}, D);
+  if (b.cfg.burn === 0){ b.burnD = Object.assign({}, D); batchSample(); }
+  return true;
+}
+function afterBatchTick(){
+  const b = batch;
+  if (b.firstAde == null && last.ad > 0) b.firstAde = hour;
+  if (b.firstTum == null && last.tu > 0) b.firstTum = hour;
+  if (hour === b.cfg.burn){ b.burnD = Object.assign({}, D); b.prevD = Object.assign({}, D); batchSample(); }
+  else if (hour > b.cfg.burn && (hour - b.cfg.burn) % b.cfg.step === 0) batchSample();
+}
+function endRun(){
+  const b = batch, r = b.run;
+  const reason = stopped ? stopReason.replace(/\.$/, "") : `Maximum length (${b.cfg.maxH} h) reached`;
+  const post = b.burnD ? DKEYS.map(k => D[k] - b.burnD[k]) : DKEYS.map(() => null);
+  b.sum.push(csvRow([r.n, `1e-${r.mutExp}`, r.mitosis, r.seed, b.cfg.burn, hour, `"${reason}"`, cells.length, last.ta, last.df, last.pr, last.ad, last.tu,
+    immune.length, b.firstAde, b.firstTum, peakNeo, ...post, meanReg()]));
+  if (b.cfg.events && b.zip){
+    const tag = `run${String(r.n).padStart(3, "0")}_mu1e-${r.mutExp}_${r.mitosis}_seed${r.seed}`;
+    b.zip.file(`events/${tag}.csv`, eventsCSV());
+    b.zip.file(`cells_at_end/${tag}.csv`, snapshotCSV());
+  }
+  b.i++; b.run = null;
+}
+function renderBatch(){
+  const b = batch; if (!b) return;
+  const done = b.i + (b.run ? Math.min(1, hour / b.cfg.maxH) : 0);
+  document.getElementById("batchFill").style.width = (100 * done / b.queue.length).toFixed(1) + "%";
+  if (b.active && b.run){
+    const secs = Math.round((performance.now() - b.t0) / 1000);
+    bInfo.textContent = `Run ${b.run.n} of ${b.queue.length} · 10^-${b.run.mutExp} · ${b.run.mitosis} · seed ${b.run.seed} · hour ${hour.toLocaleString("en-US")} · ${secs} s elapsed`;
+  }
+}
+function batchStep(now){
+  const t0 = performance.now();
+  while (performance.now() - t0 < 28){
+    if (!batch.run && !startNextRun()){ finishBatch(); return; }
+    tick(); afterBatchTick();
+    if (stopped || hour >= batch.cfg.maxH) endRun();
+  }
+  dirty = true;
+  if (now - lastChart > 250){ lastChart = now; drawCharts(); renderStats(); renderBatch(); if (selected) updateInspect(); }
+}
+function startBatch(){
+  const cfg = { burn: numIn("bBurn", 0, 2000), step: numIn("bStep", 1, 720), maxH: numIn("bMax", 24, MAXH), events: bEvents.checked && !bEvents.disabled };
+  const queue = batchQueue();
+  const zipOK = typeof window.JSZip === "function";
+  batch = { active:true, queue, i:0, run:null, cfg, sum:[], ts:[], cancel:false, t0:performance.now(),
+    saved:{ mutExp:P.mutExp, mitosis:P.mitosis, seed:P.seed }, zip: zipOK ? new window.JSZip() : null };
+  batchResult = null; bSave.hidden = true;
+  running = false; lockControls(true);
+  bBtn.textContent = "Stop after this run"; bBtn.classList.remove("primary");
+  document.getElementById("batchBar").hidden = false;
+  renderStats();
+}
+function finishBatch(){
+  const b = batch; b.active = false;
+  logOn = true;
+  const params = Object.assign(paramsObj(), { scenarios: scen, mutation_probability: scen === "current" ? `1e-${b.saved.mutExp}` : "all",
+    mitosis: scen === "allboth" ? "both" : b.saved.mitosis, runs_completed: b.i, runs_planned: b.queue.length,
+    burn_in_h: b.cfg.burn, record_every_h: b.cfg.step, maximum_length_h: b.cfg.maxH, per_cell_event_logs: b.cfg.events,
+    seeds: b.queue.length ? `${b.queue[0].seed}-${b.queue[b.queue.length - 1].seed}` : "",
+    notes: "Deaths and divisions in summary.csv count from the end of the burn-in; empty when a run stopped before it. Time-series death columns count events in the interval since the previous row." });
+  const files = { "summary.csv": [SUM_HEAD, ...b.sum].join("\n"), "timeseries.csv": [TS_HEAD, ...b.ts].join("\n"), "parameters.json": JSON.stringify(params, null, 2) };
+  // restore the interactive run the viewer had
+  Object.assign(P, b.saved);
+  setup(); selectDefault();
+  lockControls(false);
+  bBtn.textContent = "Start replicate runs"; bBtn.classList.add("primary");
+  document.getElementById("batchFill").style.width = (100 * b.i / Math.max(1, b.queue.length)).toFixed(1) + "%";
+  const secs = Math.round((performance.now() - b.t0) / 1000);
+  const label = `${b.i} of ${b.queue.length} runs finished in ${secs} s.`;
+  if (b.zip){
+    for (const [k, v] of Object.entries(files)) b.zip.file(k, v);
+    bInfo.textContent = label + " Packing the zip…";
+    b.zip.generateAsync({ type:"blob", compression:"DEFLATE", compressionOptions:{ level:6 } }).then(blob => {
+      batchResult = { name: `crypt-replicates_${new Date().toISOString().slice(0, 10)}_${b.i}runs.zip`, data: blob };
+      bInfo.textContent = `${label} Results ready (${(blob.size / 1048576).toFixed(1)} MB).`;
+      bSave.hidden = !downloads; if (!downloads) bInfo.textContent += " Saving files isn't available in this view.";
+    }, () => { bInfo.textContent = label + " The zip could not be built."; });
+  } else {
+    batchResult = { name: `crypt-replicates_summary_${b.i}runs.csv`, data: files["summary.csv"], extra: files };
+    bInfo.textContent = label + " The zip library didn't load, so the summary and time series are saved as separate CSV files.";
+    bSave.textContent = "Save summary and time series"; bSave.hidden = !downloads;
+  }
+  refresh();
+}
+bBtn.addEventListener("click", () => {
+  if (batch && batch.active){ batch.cancel = true; bBtn.disabled = true; bInfo.textContent = "Stopping after the current run…";
+    const waitEnd = () => { if (batch.active) setTimeout(waitEnd, 200); else bBtn.disabled = false; }; waitEnd(); return; }
+  startBatch();
+});
+bSave.addEventListener("click", async () => {
+  if (!batchResult) return;
+  if (batchResult.extra){
+    const ok = await offerSave("crypt-replicates_summary.csv", batchResult.extra["summary.csv"], bInfo);
+    if (ok) await offerSave("crypt-replicates_timeseries.csv", batchResult.extra["timeseries.csv"], bInfo);
+  } else offerSave(batchResult.name, batchResult.data, bInfo);
+});
+
+/* ---------- loop ---------- */
+function refresh(){ dirty = true; renderStats(); drawCharts(); if (selected) updateInspect(); }
+function frame(now){
+  if (batch && batch.active){ batchStep(now); if (dirty){ drawCrypt(); drawZoom(); dirty = false; } requestAnimationFrame(frame); return; }
+  if (running && !stopped){
+    const t0 = performance.now();
+    if (speed === Infinity){ while (performance.now() - t0 < 14 && !stopped) tick(); }
+    else for (let i = 0; i < speed && !stopped && performance.now() - t0 < 32; i++) tick();
+    dirty = true;
+    if (now - lastChart > 160){ lastChart = now; drawCharts(); renderStats(); if (selected) updateInspect(); }
+    if (stopped) refresh();
+  }
+  if (dirty){ drawCrypt(); drawZoom(); dirty = false; }
+  requestAnimationFrame(frame);
+}
+
+function init(){
+  readColors();
+  legend(document.getElementById("cellLegend"), [["--c-ta","Transit-amplifying"],["--c-diff","Differentiated"],["--c-pre","Pre-adenoma"],["--c-ade","Adenoma"],["--c-tum","Tumoral"],["--c-imm","Immune"]]);
+  legend(document.getElementById("lgPop"), [["--c-ta","Transit-amplifying"],["--c-diff","Differentiated"],["--c-pre","Pre-adenoma"],["--c-ade","Adenoma"],["--c-tum","Tumoral"],["--c-imm","Immune"]]);
+  legend(document.getElementById("lgDeath"), [["--ink","Physiological"],["--c-ade","Hypoxic"],["--c-imm","Killed by immune cells"],["--c-tum","Tumoral, age limit"],["--c-ta","TP53 apoptosis"]]);
+  legend(document.getElementById("lgGeno"), [["--g-wt","Wild-type [0 0]"],["--g-het","Heterozygous [1 0] / [0 1]"],["--g-mut","Both alleles mutated [1 1]"]]);
+  legend(document.getElementById("lgOff"), [["--ink","Normal"],["--c-pre","Pre-adenoma"],["--c-ade","Adenoma"],["--c-tum","Tumoral"]]);
+  document.getElementById("badgeKey").innerHTML = "<span>Badges, left to right: APC · KRAS · TP53</span>" +
+    [["--g-wt","wild-type"],["--g-het","heterozygous"],["--g-mut","[1 1]"]].map(([c, t]) => `<span><span class="sw" style="background:var(${c})"></span>${t}</span>`).join("") +
+    "<span>Tinted patches: crowding (red = at the hypoxia threshold)</span>";
+  sizeCrypt();
+  sizeZoom();
+  setup();
+  for (let i = 0; i < 240; i++) tick();          // open on day 10 of a 10⁻⁵ run
+  selectDefault();
+  updateBatchPlan();
+  refresh();
+  requestAnimationFrame(frame);
+}
+const retheme = () => { readColors(); dirty = true; drawCharts(); };
+try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retheme); } catch (e) {}
+new MutationObserver(retheme).observe(root, { attributes:true, attributeFilter:["data-theme"] });
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { sizeCrypt(); sizeZoom(); dirty = true; drawCharts(); }, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { dirty = true; drawCharts(); });
+init();
+})();
+</script>
+
+</body></html>
